@@ -21,8 +21,46 @@
           <td><%= link_to 'Edit', edit_book_path(@book), class: "btn btn-sm btn-success edit_book_#{@book.id}" %></td>
           <td><%= link_to 'Destroy', book_path(@book), method: :delete, data: { confirm: '本当に消しますか？' }, class: "btn btn-sm btn-danger destroy_book_#{@book.id}"%></td>
           <% end %>
+          <% if @book.favorited_by?(current_user) %>
+          <td>
+            <%= link_to book_favorites_path(@book),method: :delete do %>
+            ♥<%= @book.favorites.count %>
+            <% end %>
+          </td>
+          <% else %>
+          <td>
+            <%= link_to book_favorites_path(@book),method: :post do %>
+            ♡<%= @book.favorites.count %>
+            <% end %>
+          </td>
+          <% end %>
+          <td>コメント数：<%= @book.book_comments.count %></td>
         </tr>
       </table>
+      <% @book.book_comments.each do |book_comment| %>
+      <div class='comments'>
+        <%= attachment_image_tag book_comment.user, :profile_image, :fill, 40, 40, fallback: "no_image.jpg",size:'40x40' %>
+        <%= book_comment.comment %>
+            <% if book_comment.user_id == current_user.id %>
+             <%= link_to book_book_comment_path(book_comment.book, book_comment), class:"btn btn-danger",method: :delete do %>Destroy<% end %>
+             <!--book_comment.book, book_commentの意味とは-->
+            <% end %></br>
+        <%= link_to book_comment.user do %>
+        <%= book_comment.user.name %>
+        <% end %>
+        </div>
+      <% end %>
+        <%= form_with(model:[@book, @book_comment], local: true) do |f| %>
+         <div class="form-group">
+         <%= f.text_area :comment, class:"form-control"%>
+         </div>
+         <div>
+         <%= f.submit '送信' %>
+         </div>
+        <% end %>
+       </div>
     </div>
   </div>
 </div>
+
+<!--formタグで囲うと機能しなくなった理由とは-->
